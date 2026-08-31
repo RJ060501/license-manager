@@ -115,3 +115,36 @@ class EntraClient:
                 raise
 
         return users
+    
+    def get_subscribed_skus(self):
+        """
+        Retrieve all Microsoft license SKUs available in the tenant.
+
+        This allows us to map opaque SKU IDs to readable names such as
+        Microsoft 365 E3.
+
+        Returns:
+            A list of subscribed SKU dictionaries.
+        """
+
+        url = f"{self.base_url}/subscribedSkus"
+
+        try:
+            response = requests.get(
+                url,
+                headers=self._get_headers(),
+                timeout=30,
+            )
+
+            response.raise_for_status()
+
+            data = response.json()
+
+            return data.get("value", [])
+
+        except requests.RequestException as exception:
+            logger.error(
+                "Failed to retrieve subscribed SKUs: %s",
+                exception,
+            )
+            raise
