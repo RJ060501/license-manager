@@ -1,23 +1,58 @@
-from src.config import load_settings
-from src.collectors.entra import EntraClient
+package main
 
+import (
+	"context"
+	"fmt"
+	"log"
 
-def main():
-    settings = load_settings()
+	"github.com/RJ060501/license-manager/internal/config"
+	"github.com/RJ060501/license-manager/internal/entra"
+)
 
-    entra_client = EntraClient(settings)
+func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf(
+			"failed to load configuration: %v",
+			err,
+		)
+	}
 
-    skus = entra_client.get_subscribed_skus()
+	entraClient, err := entra.NewClient(cfg)
+	if err != nil {
+		log.Fatalf(
+			"failed to create Entra client: %v",
+			err,
+		)
+	}
 
-    print(f"Retrieved {len(skus)} subscribed SKUs.\n")
+	ctx := context.Background()
 
-    for sku in skus:
-        print(
-            f"{sku.get('skuPartNumber')} | "
-            f"SKU ID: {sku.get('skuId')} | "
-            f"Consumed: {sku.get('consumedUnits')}"
-        )
+	users, err := entraClient.GetUsers(ctx)
+	if err != nil {
+		log.Fatalf(
+			"failed to retrieve users: %v",
+			err,
+		)
+	}
 
+	fmt.Printf(
+		"Retrieved %d users.\n\n",
+		len(users),
+	)
 
-if __name__ == "__main__":
-    main()
+	limit := 10
+
+	if len(users) < limit {
+		limit = len(users)
+	}
+
+	for _, user := range users[:limit] {
+		fmt.Printf(
+			"%s | %s | Enabled: %t\n",
+			user.DisplayName,
+			user.UserPrincipalName,
+			user.AccountEnabled,
+		)
+	}
+}
