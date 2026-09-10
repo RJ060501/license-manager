@@ -141,3 +141,27 @@ func (c *Client) GetSubscribedSKUs(
 
 	return result.Value, nil
 }
+
+// BuildSKULookup creates a map that translates Microsoft SKU IDs into
+// readable SKU part numbers.
+//
+// Example:
+//
+//	"05e9a617-..." -> "SPE_E3"
+//
+// The SKU ID is what Microsoft stores on each user's assignedLicenses array.
+// The SKU part number is much easier for humans to understand.
+func BuildSKULookup(skus []SubscribedSKU) map[string]string {
+	// Create an empty map where:
+	//
+	//	key   = Microsoft SKU GUID
+	//	value = Microsoft SKU part number
+	lookup := make(map[string]string)
+
+	// Loop through every SKU returned by Microsoft Graph.
+	for _, sku := range skus {
+		lookup[sku.SKUID] = sku.PartNumber
+	}
+
+	return lookup
+}

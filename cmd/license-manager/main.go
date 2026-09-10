@@ -73,7 +73,7 @@ func main() {
 		fmt.Printf(
 			"%s | %s | Consumed: %d\n",
 			sku.PartNumber,
-			sku.ID,
+			sku.SKUID,
 			sku.ConsumedUnits,
 		)
 	}
