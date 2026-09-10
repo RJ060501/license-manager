@@ -55,4 +55,26 @@ func main() {
 			user.AccountEnabled,
 		)
 	}
+
+	skus, err := entraClient.GetSubscribedSKUs(ctx)
+	if err != nil {
+		log.Fatalf(
+			"failed to retrieve subscribed SKUs: %v",
+			err,
+		)
+	}
+
+	fmt.Printf(
+		"\nRetrieved %d subscribed SKUs.\n\n",
+		len(skus),
+	)
+
+	for _, sku := range skus {
+		fmt.Printf(
+			"%s | %s | Consumed: %d\n",
+			sku.PartNumber,
+			sku.ID,
+			sku.ConsumedUnits,
+		)
+	}
 }
